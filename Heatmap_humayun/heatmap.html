@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create leaflet heap map for final map</title>
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    <style>
+        #map { width: 100%; height: 100vh; }
+        body { font: 16px/1.4 "Helvetica Neue", Arial, sans-serif; }
+        .ghbtns { position: relative; top: 4px; margin-left: 0px; }
+        a { color: #0077ff; }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- <script src="../node_modules/simpleheat/simpleheat.js"></script> -->
+<script src="../src/HeatLayer.js"></script>
+
+<script src="leaflet-heat.js"></script>
+
+<script src="http://leaflet.github.io/Leaflet.markercluster/example/realworld.10000.js"></script>
+<script>
+
+var map = L.map('map').setView([-37.87, 175.475], 12);
+
+var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+}).addTo(map);
+
+addressPoints = addressPoints.map(function (p) { return [p[0], p[1]]; });
+
+var heat = L.heatLayer(addressPoints).addTo(map);
+
+//Adding logo to the map
+
+L.Control.Watermark = L.Control.extend({
+    onAdd:function(map){
+        var img = L.DomUtil.create('img');
+        img.src = 'logo1.png';
+        img.style.width = '150px';  
+        return img;
+        },
+        onRemove:function(map){},
+        });
+        L.control.watermark = function(opts){
+            return new L.Control.Watermark(opts);
+        }
+        L.control.watermark({position:'bottomleft'}).addTo(map);
+
+
+
+
+ 
+
+//Adding Scale to the map
+
+L.control.scale({
+    matric:true,
+    imperial:true,
+    maxWidth :300,
+    position: 'bottomright'
+}).addTo(map)
+
+// sideBySide 
+L.control.sideBySide(ls, mf).addTo(map);
+
+
+var heat = L.heatLayer(addressPoints, {
+    minOpacity: 0.5,  // Example value for min opacity
+    maxZoom: 1,      // Example value for max zoom
+    radius: 5,       // Example value for radius
+    blur: 1,         // Example value for blur
+    gradient: {       // Example gradient
+        0.4: 'yellow',
+        0.65: 'green',
+        1: 'red'
+    },
+    pane: 'overlayPane'  // Example pane
+}).addTo(map);
+
+
+</script>
+</body>
+</html>
