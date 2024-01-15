@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw Vector Object Through leaflet</title>
+
+    <style>
+        html, body, #map {
+            height: 100vh;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+</body>
+</html>
+
+<!-- leaflet js  -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"></script>
+
+<!-- leaflet draw plugin for vector data -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+
+<script>
+    // Initialize the map
+    var map = L.map ('map').setView([28.2096, 83.9856], 13);
+
+    // Add the OpenStreetMap tiles
+    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    })
+    osm.addTo(map);
+
+    var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}); osm.addTo(map)
+
+// water color
+var Stadia_StamenWatercolor = L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.{ext}', {
+	minZoom: 1,
+	maxZoom: 16,
+	attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	ext: 'jpg'
+});
+
+// dark map
+var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+	subdomains: 'abcd',
+	maxZoom: 20
+});
+
+//google streets
+var googleStreets = L.tileLayer('http://{s}.google.com/vt?lyrs=m&x={x}&y={y}&z={z}',{
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+});
+
+//google satellite
+var googleSat = L.tileLayer('http://{s}.google.com/vt?lyrs=s&x={x}&y={y}&z={z}',{
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+});
+
+// Terrain
+var googleTerrain = L.tileLayer('http://{s}.google.com/vt?lyrs=p&x={x}&y={y}&z={z}',{
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+});
+
+// Leaflet Layer Control
+var baseMaps ={
+    'open Street Map':osm,
+    'Water Color': Stadia_StamenWatercolor,
+    'Dark Map' : CartoDB_DarkMatter ,
+    'google streets':googleStreets,
+    'google satellite':googleSat,
+   'google Terrain':googleTerrain,
+}
+
+L.control.layers(baseMaps).addTo(map)
+
+
+
+
+
+
+    // leaflet draw 
+    var drawnFeatures = new L.FeatureGroup();
+    map.addLayer(drawnFeatures);
+
+    var drawControl = new L.Control.Draw({
+        // position: "topright",
+        edit: {
+            featureGroup: drawnFeatures,
+            remove: false
+        },
+        draw: {
+		    polygon: {
+		     shapeOptions: {
+		      color: 'purple'
+		     },
+		     allowIntersection: false,
+		     drawError: {
+		      color: 'orange',
+		      timeout: 1000
+		     },
+		    },
+		    polyline: {
+		     shapeOptions: {
+		      color: 'red'
+		     },
+		    },
+		    rect: {
+		     shapeOptions: {
+		      color: 'green'
+		     },
+		    },
+		    circle: {
+		     shapeOptions: {
+		      color: 'steelblue'
+		     },
+		    },
+		   },
+ 
+    });
+    map.addControl(drawControl);
+
+    map.on("draw:created", function(e){
+        var type = e.layerType;
+        var layer = e.layer;
+        console.log(layer.toGeoJSON())
+
+        layer.bindPopup(`<p>${JSON.stringify(layer.toGeoJSON())}</p>`)
+        drawnFeatures.addLayer(layer);
+    });
+
+    map.on("draw:edited", function(e){
+        var layers = e.layers;
+        var type = e.layerType;
+
+        layers.eachLayer(function(layer){
+            console.log(layer)
+        })
+        
+    })
+
+
+//Adding logo
+
+L.Control.Watermark = L.Control.extend({
+    onAdd:function(map){
+        var img = L.DomUtil.create('img');
+        img.src = 'Arclogo.png';
+        img.style.width = '150px';  
+        return img;
+        },
+        onRemove:function(map){},
+        });
+        L.control.watermark = function(opts){
+            return new L.Control.Watermark(opts);
+        }
+        L.control.watermark({position:'bottomleft'}).addTo(map);
+
+//Adding Scale
+
+L.control.scale({
+    matric:true,
+    imperial:true,
+    maxWidth :300,
+    position: 'bottomright'
+}).addTo(map)
+    
+
+</script>
